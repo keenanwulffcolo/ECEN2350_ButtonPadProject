@@ -11,6 +11,22 @@ CB_status InitializeBuffer(CircBuf * buf, uint32_t length){
 	buf->tail = buf->buffer;
 	return CB_INIT_SUCCESS;
 }
+static inline uint8_t * nextItem(CircBuf * buf, uint8_t * ptr){
+	if(ptr == buf->buffer + buf->length){
+		return(buf->buffer);
+	}
+	else{
+		return(ptr++);
+	}
+}
+static inline uint8_t * prevItem(CircBuf * buf, uint8_t * ptr){
+	if(ptr == buf->buffer){
+		return(buf->buffer + buf->length);
+	}
+	else{
+		return(ptr--);
+	}
+}
 void ClearBuffer(CircBuf * buf){
 	buf->head = buf->buffer;//reset all data by restoring buffer to initial state
 	buf->tail = buf->buffer;
@@ -34,9 +50,8 @@ int8_t BufferEmpty(CircBuf * buf){
 }
 void AddItemToBuffer(CircBuf * buf, uint8_t item){
 	// conditionals for moving tail in various cases
-	if(buf->num_items == 0){}//empty if statement for adding first item to buffer
-	else{//move tail so a new item can be added
-		buf->tail ++;
+	if(buf->num_items != 0){}//empty if statement for adding first item to buffer
+		buf->tail = nextItem(buf, buf->tail);
 	}
 	//actually add the item to the buffer
 	*buf->tail = item;
@@ -46,7 +61,7 @@ void AddItemToBuffer(CircBuf * buf, uint8_t item){
 }
 void RemoveItemFromBuffer(CircBuf * buf){
 	// conditionals for moving headin various cases
-	buf->head ++;
+	buf->head = nextItem(buf, buf->head);
 	buf->num_items--;
 }
 
